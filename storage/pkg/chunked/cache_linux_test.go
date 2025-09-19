@@ -9,8 +9,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	graphdriver "go.podman.io/storage/drivers"
+	digest "github.com/opencontainers/go-digest"
+	"github.com/stretchr/testify/assert"
 )
 
 const jsonTOC = `
@@ -148,18 +149,18 @@ func TestWriteCache(t *testing.T) {
 	if err != nil {
 		t.Errorf("got error from writeCache: %v", err)
 	}
-	if digest, _, _ := findTag("sha256:99fe908c699dc068438b23e28319cadff1f2153c3043bafb8e83a430bba0a2c2", cache); digest != "" {
+	if digestStr, _, _ := findTag("sha256:99fe908c699dc068438b23e28319cadff1f2153c3043bafb8e83a430bba0a2c2", cache); digestStr != "" {
 		t.Error("a present tag was not found")
 	}
 
 	for _, r := range toc {
 		if r.Digest != "" {
 			// find the element in the cache by the digest checksum
-			digest, off, lenTag := findTag(r.Digest, cache)
-			if digest == "" {
+			digestStr, off, lenTag := findTag(r.Digest, cache)
+			if digestStr == "" {
 				t.Error("file tag not found")
 			}
-			if digest != r.Digest {
+			if digestStr != r.Digest {
 				t.Error("wrong file found")
 			}
 			location := cache.vdata[off : off+lenTag]
@@ -167,7 +168,7 @@ func TestWriteCache(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, fileSize, uint64(r.Size))
-			assert.Equal(t, offFile, uint64(0))
+			assert.Equal(t, offFile, uint64(r.Offset))
 
 			fingerprint, err := calculateHardLinkFingerprint(r, digest.SHA256)
 			if err != nil {
@@ -175,11 +176,11 @@ func TestWriteCache(t *testing.T) {
 			}
 
 			// find the element in the cache by the hardlink fingerprint
-			digest, off, lenTag = findTag(fingerprint, cache)
-			if digest == "" {
+			digestStr, off, lenTag = findTag(fingerprint, cache)
+			if digestStr == "" {
 				t.Error("file tag not found")
 			}
-			if digest != fingerprint {
+			if digestStr != fingerprint {
 				t.Error("wrong file found")
 			}
 			location = cache.vdata[off : off+lenTag]
@@ -187,15 +188,15 @@ func TestWriteCache(t *testing.T) {
 			assert.NoError(t, err)
 
 			assert.Equal(t, fileSize, uint64(r.Size))
-			assert.Equal(t, offFile, uint64(0))
+			assert.Equal(t, offFile, uint64(r.Offset))
 		}
 		if r.ChunkDigest != "" {
 			// find the element in the cache by the chunk digest checksum
-			digest, off, len := findTag(r.ChunkDigest, cache)
-			if digest == "" {
+			digestStr, off, len := findTag(r.ChunkDigest, cache)
+			if digestStr == "" {
 				t.Error("chunk tag not found")
 			}
-			if digest != r.ChunkDigest {
+			if digestStr != r.ChunkDigest {
 				t.Error("wrong digest found")
 			}
 			expectedLocation := generateFileLocation(0, uint64(r.ChunkOffset), uint64(r.ChunkSize))
