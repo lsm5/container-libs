@@ -399,7 +399,7 @@ func makeEstargzChunkedDiffer(store storage.Store, blobSize int64, tocDigest dig
 		}
 	}
 
-	manifest, tocOffset, err := readEstargzChunkedManifest(iss, blobSize, tocDigest)
+	manifest, tocOffset, err := readEstargzChunkedManifest(iss, blobSize, tocDigest, store.GetDigestAlgorithm())
 	if err != nil { // May be ErrFallbackToOrdinaryLayerDownload / errFallbackCanConvert
 		return nil, fmt.Errorf("read zstd:chunked manifest: %w", err)
 	}

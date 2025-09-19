@@ -6,7 +6,6 @@ import (
 	"io"
 	"os"
 
-	digest "github.com/opencontainers/go-digest"
 	"github.com/sirupsen/logrus"
 	"go.podman.io/storage"
 	graphdriver "go.podman.io/storage/drivers"
