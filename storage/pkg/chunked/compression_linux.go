@@ -146,7 +146,7 @@ func readEstargzChunkedManifest(blobStream ImageSourceSeekable, blobSize int64, 
 		return nil, 0, errors.New("manifest not found")
 	}
 
-	manifestDigester := digest.Canonical.Digester()
+	manifestDigester := digestAlgorithm.Digester()
 	manifestChecksum := manifestDigester.Hash()
 	if _, err := manifestChecksum.Write(manifestUncompressed); err != nil {
 		return nil, 0, err
@@ -188,7 +188,7 @@ func openTmpFileNoTmpFile(tmpDir string) (*os.File, error) {
 // The compressed parameter indicates whether the manifest and tar-split data are zstd-compressed
 // (true) or stored uncompressed (false).  Uncompressed data is used only for an optimization to convert
 // a regular OCI layer to zstd:chunked when convert_images is set, and it is not used for distributed images.
-func readZstdChunkedManifest(tmpDir string, blobStream ImageSourceSeekable, tocDigest digest.Digest, annotations map[string]string, compressed bool) (_ []byte, _ *minimal.TOC, _ *os.File, _ int64, retErr error) {
+func readZstdChunkedManifest(tmpDir string, blobStream ImageSourceSeekable, tocDigest digest.Digest, annotations map[string]string, compressed bool, digestAlgorithm digest.Algorithm) (_ []byte, _ *minimal.TOC, _ *os.File, _ int64, retErr error) {
 	offsetMetadata := annotations[minimal.ManifestInfoKey]
 	if offsetMetadata == "" {
 		return nil, nil, nil, 0, fmt.Errorf("%q annotation missing", minimal.ManifestInfoKey)

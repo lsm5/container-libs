@@ -222,7 +222,7 @@ func WriteZstdChunkedManifest(dest io.Writer, outMetadata map[string]string, off
 	}
 	compressedManifest := compressedBuffer.Bytes()
 
-	manifestDigester := digest.Canonical.Digester()
+	manifestDigester := digestAlgorithm.Digester()
 	manifestChecksum := manifestDigester.Hash()
 	if _, err := manifestChecksum.Write(compressedManifest); err != nil {
 		return err

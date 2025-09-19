@@ -123,7 +123,7 @@ func TestGenerateAndParseManifest(t *testing.T) {
 
 	ts := minimal.TarSplitData{
 		Data:             tarSplitCompressedData,
-		Digest:           digest.Canonical.FromBytes(tarSplitCompressedData),
+		Digest:           digest.SHA256.FromBytes(tarSplitCompressedData),
 		UncompressedSize: 9,
 	}
 

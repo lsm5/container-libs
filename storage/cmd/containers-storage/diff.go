@@ -157,7 +157,7 @@ func applyDiffUsingStagingDirectory(flags *mflag.FlagSet, action string, m stora
 		return 1, err
 	}
 
-	digesterCompressed := digest.Canonical.Digester()
+	digesterCompressed := m.GetDigestAlgorithm().Digester()
 	r := io.TeeReader(tr, digesterCompressed.Hash())
 
 	if _, err := io.Copy(compressor, r); err != nil {

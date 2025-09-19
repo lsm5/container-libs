@@ -144,7 +144,7 @@ func TestWriteCache(t *testing.T) {
 	dest := bigDataToBuffer{
 		buf: bytes.NewBuffer(nil),
 	}
-	cache, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", &dest)
+	cache, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", &dest, digest.SHA256)
 	if err != nil {
 		t.Errorf("got error from writeCache: %v", err)
 	}
@@ -169,7 +169,7 @@ func TestWriteCache(t *testing.T) {
 			assert.Equal(t, fileSize, uint64(r.Size))
 			assert.Equal(t, offFile, uint64(0))
 
-			fingerprint, err := calculateHardLinkFingerprint(r)
+			fingerprint, err := calculateHardLinkFingerprint(r, digest.SHA256)
 			if err != nil {
 				t.Errorf("got error from writeCache: %v", err)
 			}
@@ -211,7 +211,7 @@ func TestReadCache(t *testing.T) {
 	dest := bigDataToBuffer{
 		buf: bytes.NewBuffer(nil),
 	}
-	cache, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", &dest)
+	cache, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", &dest, digest.SHA256)
 	if err != nil {
 		t.Errorf("got error from writeCache: %v", err)
 	}
@@ -229,7 +229,7 @@ func FuzzReadCache(f *testing.F) {
 	dest := &bigDataToBuffer{
 		buf: bytes.NewBuffer(nil),
 	}
-	_, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", dest)
+	_, err := writeCache([]byte(jsonTOC), graphdriver.DifferOutputFormatDir, "foobar", dest, digest.SHA256)
 	if err != nil {
 		f.Errorf("got error from writeCache: %v", err)
 	}
