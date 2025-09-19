@@ -116,5 +116,3 @@ require (
 	google.golang.org/grpc v1.72.2 // indirect
 	google.golang.org/protobuf v1.36.8 // indirect
 )
-
-replace go.podman.io/storage => /home/lsm5/repositories/containers/container-libs/storage
