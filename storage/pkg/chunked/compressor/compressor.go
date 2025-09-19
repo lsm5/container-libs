@@ -479,7 +479,7 @@ func makeZstdChunkedWriter(out io.Writer, metadata map[string]string, createZstd
 }
 
 // ZstdCompressor is a CompressorFunc for the zstd compression algorithm.
-func ZstdCompressor(r io.Writer, metadata map[string]string, level *int) (io.WriteCloser, error) {
+func ZstdCompressor(r io.Writer, metadata map[string]string, level *int, digestAlgorithm digest.Algorithm) (io.WriteCloser, error) {
 	if level == nil {
 		l := 10
 		level = &l
@@ -489,7 +489,7 @@ func ZstdCompressor(r io.Writer, metadata map[string]string, level *int) (io.Wri
 		return minimal.ZstdWriterWithLevel(dest, *level)
 	}
 
-	return makeZstdChunkedWriter(r, metadata, createZstdWriter, digest.SHA256)
+	return makeZstdChunkedWriter(r, metadata, createZstdWriter, digestAlgorithm)
 }
 
 type noCompression struct {
@@ -516,9 +516,9 @@ func (n *noCompression) Reset(dest io.Writer) {
 //
 // Such an output does not follow the zstd:chunked spec and cannot be generally consumed; this function
 // only exists for internal purposes and should not be called from outside c/storage.
-func NoCompression(r io.Writer, metadata map[string]string) (io.WriteCloser, error) {
+func NoCompression(r io.Writer, metadata map[string]string, digestAlgorithm digest.Algorithm) (io.WriteCloser, error) {
 	createZstdWriter := func(dest io.Writer) (minimal.ZstdWriter, error) {
 		return &noCompression{dest: dest}, nil
 	}
-	return makeZstdChunkedWriter(r, metadata, createZstdWriter, digest.SHA256)
+	return makeZstdChunkedWriter(r, metadata, createZstdWriter, digestAlgorithm)
 }
