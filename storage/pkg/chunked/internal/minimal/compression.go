@@ -190,7 +190,7 @@ type TarSplitData struct {
 	UncompressedSize int64
 }
 
-func WriteZstdChunkedManifest(dest io.Writer, outMetadata map[string]string, offset uint64, tarSplitData *TarSplitData, metadata []FileMetadata, createZstdWriter CreateZstdWriterFunc) error {
+func WriteZstdChunkedManifest(dest io.Writer, outMetadata map[string]string, offset uint64, tarSplitData *TarSplitData, metadata []FileMetadata, createZstdWriter CreateZstdWriterFunc, digestAlgorithm digest.Algorithm) error {
 	// 8 is the size of the zstd skippable frame header + the frame size
 	const zstdSkippableFrameHeader = 8
 	manifestOffset := offset + zstdSkippableFrameHeader

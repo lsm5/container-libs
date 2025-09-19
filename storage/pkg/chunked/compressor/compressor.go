@@ -419,7 +419,7 @@ func writeZstdChunkedStream(destFile io.Writer, outMetadata map[string]string, r
 		UncompressedSize: tarSplitData.uncompressedCounter.Count,
 	}
 
-	return minimal.WriteZstdChunkedManifest(dest, outMetadata, uint64(dest.Count), &ts, metadata, createZstdWriter)
+	return minimal.WriteZstdChunkedManifest(dest, outMetadata, uint64(dest.Count), &ts, metadata, createZstdWriter, digestAlgorithm)
 }
 
 type zstdChunkedWriter struct {
