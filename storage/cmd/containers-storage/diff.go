@@ -151,7 +151,7 @@ func applyDiffUsingStagingDirectory(flags *mflag.FlagSet, action string, m stora
 	// a composefs image.
 
 	metadata := make(map[string]string)
-	compressor, err := compressor.ZstdCompressor(tar, metadata, nil)
+	compressor, err := compressor.ZstdCompressor(tar, metadata, nil, m.GetDigestAlgorithm())
 	if err != nil {
 		return 1, err
 	}

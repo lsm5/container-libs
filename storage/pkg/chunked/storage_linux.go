@@ -170,7 +170,7 @@ func (c *chunkedDiffer) convertTarToZstdChunked(destDirectory string, payload *o
 	}
 
 	newAnnotations := make(map[string]string)
-	chunked, err := compressor.NoCompression(f, newAnnotations)
+	chunked, err := compressor.NoCompression(f, newAnnotations, c.layersCache.store.GetDigestAlgorithm())
 	if err != nil {
 		f.Close()
 		return 0, nil, "", nil, err
