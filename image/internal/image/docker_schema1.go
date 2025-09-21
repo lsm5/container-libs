@@ -219,8 +219,6 @@ func (m *manifestSchema1) convertToManifestSchema2(_ context.Context, options *t
 	configDescriptor := manifest.Schema2Descriptor{
 		MediaType: manifest.DockerV2Schema2ConfigMediaType,
 		Size:      int64(len(configJSON)),
-		// Note: Using canonical digest for manifest generation.
-		// For digest agility, this could be configurable in the future.
 		Digest:    digest.FromBytes(configJSON),
 	}
 
