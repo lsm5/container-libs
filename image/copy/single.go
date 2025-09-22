@@ -379,7 +379,13 @@ func (ic *imageCopier) noPendingManifestUpdates() bool {
 // compareImageDestinationManifestEqual compares the source and destination image manifests (reading the manifest from the
 // (possibly remote) destination). If they are equal, it returns a full copySingleImageResult, nil otherwise.
 func (ic *imageCopier) compareImageDestinationManifestEqual(ctx context.Context, targetInstance *digest.Digest) (*copySingleImageResult, error) {
-	srcManifestDigest, err := manifest.Digest(ic.src.ManifestBlob)
+	// Get the digest algorithm from the destination store if available  
+	digestAlgorithm := digest.Canonical // Default fallback
+	if digestProvider, ok := ic.c.dest.(interface{ GetDigestAlgorithm() digest.Algorithm }); ok {
+		digestAlgorithm = digestProvider.GetDigestAlgorithm()
+	}
+	
+	srcManifestDigest, err := manifest.DigestWithAlgorithm(ic.src.ManifestBlob, digestAlgorithm)
 	if err != nil {
 		return nil, fmt.Errorf("calculating manifest digest: %w", err)
 	}
@@ -397,7 +403,7 @@ func (ic *imageCopier) compareImageDestinationManifestEqual(ctx context.Context,
 		return nil, nil
 	}
 
-	destManifestDigest, err := manifest.Digest(destManifest)
+	destManifestDigest, err := manifest.DigestWithAlgorithm(destManifest, digestAlgorithm)
 	if err != nil {
 		return nil, fmt.Errorf("calculating manifest digest: %w", err)
 	}
@@ -601,7 +607,13 @@ func (ic *imageCopier) copyUpdatedConfigAndManifest(ctx context.Context, instanc
 	}
 
 	ic.c.Printf("Writing manifest to image destination\n")
-	manifestDigest, err := manifest.Digest(man)
+	// Get the digest algorithm from the destination store if available  
+	digestAlgorithm := digest.Canonical // Default fallback
+	if digestProvider, ok := ic.c.dest.(interface{ GetDigestAlgorithm() digest.Algorithm }); ok {
+		digestAlgorithm = digestProvider.GetDigestAlgorithm()
+	}
+	
+	manifestDigest, err := manifest.DigestWithAlgorithm(man, digestAlgorithm)
 	if err != nil {
 		return nil, "", err
 	}

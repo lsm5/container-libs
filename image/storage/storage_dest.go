@@ -193,6 +193,12 @@ func (s *storageImageDestination) Reference() types.ImageReference {
 	return s.imageRef
 }
 
+// GetDigestAlgorithm returns the digest algorithm configured for the storage destination.
+// This enables digest agility for layer DiffID computation.
+func (s *storageImageDestination) GetDigestAlgorithm() digest.Algorithm {
+	return s.imageRef.transport.store.GetDigestAlgorithm()
+}
+
 // Close cleans up the temporary directory and additional layer store handlers.
 func (s *storageImageDestination) Close() error {
 	// This is outside of the scope of HasThreadSafePutBlob, so we don’t need to hold s.lock.
@@ -1505,7 +1511,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 	// Set up to save the options.UnparsedToplevel's manifest if it differs from
 	// the per-platform one, which is saved below.
 	if !bytes.Equal(toplevelManifest, s.manifest) {
-		manifestDigest, err := manifest.Digest(toplevelManifest)
+		manifestDigest, err := manifest.DigestWithAlgorithm(toplevelManifest, s.imageRef.transport.store.GetDigestAlgorithm())
 		if err != nil {
 			return fmt.Errorf("digesting top-level manifest: %w", err)
 		}
@@ -1654,7 +1660,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 
 // PutManifest writes the manifest to the destination.
 func (s *storageImageDestination) PutManifest(ctx context.Context, manifestBlob []byte, instanceDigest *digest.Digest) error {
-	digest, err := manifest.Digest(manifestBlob)
+	digest, err := manifest.DigestWithAlgorithm(manifestBlob, s.imageRef.transport.store.GetDigestAlgorithm())
 	if err != nil {
 		return err
 	}
