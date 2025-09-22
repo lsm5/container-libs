@@ -1502,11 +1502,11 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 		if err != nil {
 			return fmt.Errorf("copying config blob %q to image: %w", s.lockProtected.configDigest, err)
 		}
-	imgOptions.BigData = append(imgOptions.BigData, storage.ImageBigDataOption{
-		Key:    s.lockProtected.configDigest.String(),
-		Data:   v,
-		Digest: s.imageRef.transport.store.GetDigestAlgorithm().FromBytes(v),
-	})
+		imgOptions.BigData = append(imgOptions.BigData, storage.ImageBigDataOption{
+			Key:    s.lockProtected.configDigest.String(),
+			Data:   v,
+			Digest: s.imageRef.transport.store.GetDigestAlgorithm().FromBytes(v),
+		})
 	}
 	// Set up to save the options.UnparsedToplevel's manifest if it differs from
 	// the per-platform one, which is saved below.
