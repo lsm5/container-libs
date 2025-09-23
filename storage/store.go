@@ -4018,14 +4018,7 @@ func (s *store) SetDigestType(digestType string) {
 
 // GetDigestAlgorithm returns the digest algorithm based on the configured digest type
 func (s *store) GetDigestAlgorithm() digest.Algorithm {
-	switch s.GetDigestType() {
-	case "sha512":
-		return digest.SHA512
-	case "sha256":
-		return digest.SHA256
-	default:
-		return digest.Canonical
-	}
+	return getDigestAlgorithmFromType(s.GetDigestType())
 }
 
 // getDigestAlgorithmFromType returns the digest algorithm for a given digest type string
