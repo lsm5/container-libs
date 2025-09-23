@@ -13,6 +13,7 @@ import (
 	imgspecv1 "github.com/opencontainers/image-spec/specs-go/v1"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.podman.io/image/v5/internal/blobinfocache"
 	"go.podman.io/image/v5/internal/private"
 	"go.podman.io/image/v5/pkg/blobinfocache/memory"
 	"go.podman.io/image/v5/types"
@@ -227,7 +228,7 @@ func TestPutBlobDigestFailureSHA512(t *testing.T) {
 	require.True(t, ok)
 	blobPath, err := dirRef.blobPath(blobDigest, "")
 	assert.NoError(t, err)
-	cache := memory.New()
+	cache := blobinfocache.FromBlobInfoCache(memory.New())
 
 	firstRead := true
 	reader := readerFromFunc(func(p []byte) (int, error) {
@@ -246,10 +247,14 @@ func TestPutBlobDigestFailureSHA512(t *testing.T) {
 	require.NoError(t, err)
 	defer dest.Close()
 
-	_, err = dest.PutBlobWithOptions(context.Background(), &types.BlobInfo{
+	// Cast to private.ImageDestinationPublic to access PutBlobWithOptions
+	privateDest, ok := dest.(private.ImageDestinationPublic)
+	require.True(t, ok, "destination should implement private.ImageDestinationPublic")
+
+	_, err = privateDest.PutBlobWithOptions(context.Background(), reader, types.BlobInfo{
 		Digest: blobDigest,
 		Size:   18, // len("sha512 test content")
-	}, reader, private.PutBlobOptions{
+	}, private.PutBlobOptions{
 		Cache: cache,
 	})
 	assert.Error(t, err)
