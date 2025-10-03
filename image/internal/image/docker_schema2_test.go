@@ -373,6 +373,9 @@ type memoryImageDest struct {
 func (d *memoryImageDest) Reference() types.ImageReference {
 	return refImageReferenceMock{ref: d.ref}
 }
+func (d *memoryImageDest) GetDigestAlgorithm() digest.Algorithm {
+	return digest.Canonical
+}
 func (d *memoryImageDest) Close() error {
 	panic("Unexpected call to a mock function")
 }
