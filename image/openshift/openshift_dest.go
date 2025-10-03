@@ -71,7 +71,7 @@ func (d *openshiftImageDestination) Reference() types.ImageReference {
 
 // GetDigestAlgorithm returns the digest algorithm configured for the destination.
 func (d *openshiftImageDestination) GetDigestAlgorithm() digest.Algorithm {
-	return types.GetGlobalDigestAlgorithm()
+	return types.GetDigestAlgorithm()
 }
 
 // Close removes resources associated with an initialized ImageDestination, if any.

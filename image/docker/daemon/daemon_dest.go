@@ -163,7 +163,7 @@ func (d *daemonImageDestination) Reference() types.ImageReference {
 
 // GetDigestAlgorithm returns the digest algorithm configured for the destination.
 func (d *daemonImageDestination) GetDigestAlgorithm() digest.Algorithm {
-	return types.GetGlobalDigestAlgorithm()
+	return types.GetDigestAlgorithm()
 }
 
 // CommitWithOptions marks the process of storing the image as successful and asks for the image to be persisted.

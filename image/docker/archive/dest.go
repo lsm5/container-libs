@@ -56,7 +56,7 @@ func (d *archiveImageDestination) Reference() types.ImageReference {
 
 // GetDigestAlgorithm returns the digest algorithm configured for the destination.
 func (d *archiveImageDestination) GetDigestAlgorithm() digest.Algorithm {
-	return types.GetGlobalDigestAlgorithm()
+	return types.GetDigestAlgorithm()
 }
 
 // Close removes resources associated with an initialized ImageDestination, if any.

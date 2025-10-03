@@ -195,7 +195,7 @@ func (s *storageImageDestination) Reference() types.ImageReference {
 
 // GetDigestAlgorithm returns the digest algorithm configured for the destination.
 func (s *storageImageDestination) GetDigestAlgorithm() digest.Algorithm {
-	return types.GetGlobalDigestAlgorithm()
+	return types.GetDigestAlgorithm()
 }
 
 // Close cleans up the temporary directory and additional layer store handlers.
@@ -294,7 +294,7 @@ func (s *storageImageDestination) putBlobToPendingFile(stream io.Reader, blobinf
 		}
 		defer decompressed.Close()
 
-		diffID := types.GetGlobalDigestAlgorithm().Digester()
+		diffID := types.GetDigestAlgorithm().Digester()
 		// Copy the data to the file.
 		// TODO: This can take quite some time, and should ideally be cancellable using context.Context.
 		_, err = io.Copy(diffID.Hash(), decompressed)
@@ -1050,7 +1050,7 @@ func (s *storageImageDestination) commitLayer(index int, info addedLayerInfo, si
 		}
 	}
 
-	id := layerID(parentLayer, trusted, types.GetGlobalDigestAlgorithm())
+	id := layerID(parentLayer, trusted, types.GetDigestAlgorithm())
 
 	if layer, err2 := s.imageRef.transport.store.Layer(id); layer != nil && err2 == nil {
 		// There's already a layer that should have the right contents, just reuse it.
@@ -1503,14 +1503,14 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 		imgOptions.BigData = append(imgOptions.BigData, storage.ImageBigDataOption{
 			Key:    s.lockProtected.configDigest.String(),
 			Data:   v,
-			Digest: types.GetGlobalDigestAlgorithm().FromBytes(v),
+			Digest: types.GetDigestAlgorithm().FromBytes(v),
 		})
 	}
 	// Set up to save the options.UnparsedToplevel's manifest if it differs from
 	// the per-platform one, which is saved below.
 	if !bytes.Equal(toplevelManifest, s.manifest) {
 		// Use the configured digest algorithm for manifest digest
-		algorithm := types.GetGlobalDigestAlgorithm()
+		algorithm := types.GetDigestAlgorithm()
 		manifestDigest := algorithm.FromBytes(toplevelManifest)
 		key, err := manifestBigDataKey(manifestDigest)
 		if err != nil {
@@ -1544,7 +1544,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 		imgOptions.BigData = append(imgOptions.BigData, storage.ImageBigDataOption{
 			Key:    "signatures",
 			Data:   s.signatures,
-			Digest: types.GetGlobalDigestAlgorithm().FromBytes(s.signatures),
+			Digest: types.GetDigestAlgorithm().FromBytes(s.signatures),
 		})
 	}
 	for instanceDigest, signatures := range s.signatureses {
@@ -1555,7 +1555,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 		imgOptions.BigData = append(imgOptions.BigData, storage.ImageBigDataOption{
 			Key:    key,
 			Data:   signatures,
-			Digest: types.GetGlobalDigestAlgorithm().FromBytes(signatures),
+			Digest: types.GetDigestAlgorithm().FromBytes(signatures),
 		})
 	}
 
@@ -1599,7 +1599,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 		// been present with new values, when ideally we'd find a way
 		// to merge them since they all apply to the same image
 		// Create a digest function that uses the configured algorithm
-		algorithm := types.GetGlobalDigestAlgorithm()
+		algorithm := types.GetDigestAlgorithm()
 		digestFunc := func(data []byte) (digest.Digest, error) {
 			return algorithm.FromBytes(data), nil
 		}
@@ -1663,7 +1663,7 @@ func (s *storageImageDestination) CommitWithOptions(ctx context.Context, options
 // PutManifest writes the manifest to the destination.
 func (s *storageImageDestination) PutManifest(ctx context.Context, manifestBlob []byte, instanceDigest *digest.Digest) error {
 	// Use the configured digest algorithm for manifest digest
-	algorithm := types.GetGlobalDigestAlgorithm()
+	algorithm := types.GetDigestAlgorithm()
 	digest := algorithm.FromBytes(manifestBlob)
 	s.manifest = bytes.Clone(manifestBlob)
 	if s.manifest == nil { // Make sure PutManifest can never succeed with s.manifest == nil

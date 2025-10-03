@@ -377,23 +377,23 @@ func (e ManifestTypeRejectedError) Error() string {
 	return e.Err.Error()
 }
 
-// Global digest algorithm
-var globalDigestAlgorithm digest.Algorithm = digest.Canonical // Default to SHA256
+// Digest algorithm configuration
+var digestAlgorithm digest.Algorithm = digest.Canonical // Default to SHA256
 
-// GetGlobalDigestAlgorithm returns the current global digest algorithm
-func GetGlobalDigestAlgorithm() digest.Algorithm {
-	return globalDigestAlgorithm
+// GetDigestAlgorithm returns the current digest algorithm
+func GetDigestAlgorithm() digest.Algorithm {
+	return digestAlgorithm
 }
 
-// SetGlobalDigestAlgorithm sets the global digest algorithm
-func SetGlobalDigestAlgorithm(algorithm digest.Algorithm) error {
+// SetDigestAlgorithm sets the digest algorithm
+func SetDigestAlgorithm(algorithm digest.Algorithm) error {
 	// Validate the digest type
 	switch algorithm {
 	case digest.SHA256, digest.SHA512:
-		globalDigestAlgorithm = algorithm
+		digestAlgorithm = algorithm
 		return nil
 	case "":
-		globalDigestAlgorithm = digest.Canonical // Default to sha256
+		digestAlgorithm = digest.Canonical // Default to sha256
 		return nil
 	default:
 		return fmt.Errorf("unsupported digest algorithm: %q", algorithm)

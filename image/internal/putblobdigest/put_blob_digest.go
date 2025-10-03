@@ -21,7 +21,7 @@ func newDigester(stream io.Reader, knownDigest digest.Digest, validDigest bool) 
 		return Digester{knownDigest: knownDigest}, stream
 	} else {
 		res := Digester{
-			digester: types.GetGlobalDigestAlgorithm().Digester(),
+			digester: types.GetDigestAlgorithm().Digester(),
 		}
 		stream = io.TeeReader(stream, res.digester.Hash())
 		return res, stream
@@ -43,7 +43,7 @@ func DigestIfUnknown(stream io.Reader, blobInfo types.BlobInfo) (Digester, io.Re
 // The caller MUST use the returned stream instead of the original value.
 func DigestIfCanonicalUnknown(stream io.Reader, blobInfo types.BlobInfo) (Digester, io.Reader) {
 	d := blobInfo.Digest
-	configuredAlgorithm := types.GetGlobalDigestAlgorithm()
+	configuredAlgorithm := types.GetDigestAlgorithm()
 	return newDigester(stream, d, d != "" && d.Algorithm() == configuredAlgorithm)
 }
 
