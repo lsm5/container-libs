@@ -2,6 +2,7 @@ package types
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/url"
 	"time"
@@ -359,6 +360,11 @@ type ImageDestination interface {
 	// - Uploaded data MAY be visible to others before Commit() is called
 	// - Uploaded data MAY be removed or MAY remain around if Close() is called without Commit() (i.e. rollback is allowed but not guaranteed)
 	Commit(ctx context.Context, unparsedToplevel UnparsedImage) error
+
+	// GetDigestAlgorithm returns the digest algorithm configured for the destination.
+	// This is used to determine which digest algorithm to use when computing digests
+	// for blobs and manifests during image operations.
+	GetDigestAlgorithm() digest.Algorithm
 }
 
 // ManifestTypeRejectedError is returned by ImageDestination.PutManifest if the destination is in principle available,
@@ -369,6 +375,29 @@ type ManifestTypeRejectedError struct { // We only use a struct to allow a type 
 
 func (e ManifestTypeRejectedError) Error() string {
 	return e.Err.Error()
+}
+
+// Global digest algorithm
+var globalDigestAlgorithm digest.Algorithm = digest.Canonical // Default to SHA256
+
+// GetGlobalDigestAlgorithm returns the current global digest algorithm
+func GetGlobalDigestAlgorithm() digest.Algorithm {
+	return globalDigestAlgorithm
+}
+
+// SetGlobalDigestAlgorithm sets the global digest algorithm
+func SetGlobalDigestAlgorithm(algorithm digest.Algorithm) error {
+	// Validate the digest type
+	switch algorithm {
+	case digest.SHA256, digest.SHA512:
+		globalDigestAlgorithm = algorithm
+		return nil
+	case "":
+		globalDigestAlgorithm = digest.Canonical // Default to sha256
+		return nil
+	default:
+		return fmt.Errorf("unsupported digest algorithm: %q", algorithm)
+	}
 }
 
 // UnparsedImage is an Image-to-be; until it is verified and accepted, it only caries its identity and caches manifest and signature blobs.
