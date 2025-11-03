@@ -196,11 +196,10 @@ func resourcesToProps(res *cgroups.Resources) (map[string]uint64, map[string]str
 		uMap["MemoryMax"] = uint64(res.Memory)
 	}
 	if res.MemorySwap != 0 {
-		switch {
-		case res.Memory == -1 || res.MemorySwap == -1:
+		if res.Memory == -1 || res.MemorySwap == -1 {
 			swap := -1
 			uMap["MemorySwapMax"] = uint64(swap)
-		default:
+		} else {
 			// swap max = swap (limit + swap limit) - limit
 			uMap["MemorySwapMax"] = uint64(res.MemorySwap - res.Memory)
 		}
