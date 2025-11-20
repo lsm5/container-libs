@@ -41,6 +41,7 @@ import (
 	"go.podman.io/storage/pkg/fileutils"
 	"go.podman.io/storage/pkg/ioutils"
 	"go.podman.io/storage/pkg/lockfile"
+	supporteddigests "go.podman.io/storage/pkg/supported-digests"
 )
 
 const (
@@ -763,7 +764,7 @@ func (l *list) AddArtifact(ctx context.Context, sys *types.SystemContext, option
 			defer f.Close()
 
 			// Hang on to a copy of the first 512 bytes, but digest the whole thing.
-			digester := digest.Canonical.Digester()
+			digester := supporteddigests.TmpDigestForNewObjects().Digester()
 			writeCounter := ioutils.NewWriteCounter(digester.Hash())
 			var detectableData bytes.Buffer
 			_, err = io.CopyN(writeCounter, io.TeeReader(f, &detectableData), 512)
@@ -853,7 +854,7 @@ func (l *list) AddArtifact(ctx context.Context, sys *types.SystemContext, option
 			if err != nil {
 				return "", fmt.Errorf("recording artifact config data file %q: %w", options.ConfigFile, err)
 			}
-			digester := digest.Canonical.Digester()
+			digester := supporteddigests.TmpDigestForNewObjects().Digester()
 			counter := ioutils.NewWriteCounter(digester.Hash())
 			if err := func() error {
 				f, err := os.Open(filePath)
@@ -874,7 +875,7 @@ func (l *list) AddArtifact(ctx context.Context, sys *types.SystemContext, option
 			configFilePath = filePath
 		} else {
 			decoder := bytes.NewReader(configDescriptor.Data)
-			digester := digest.Canonical.Digester()
+			digester := supporteddigests.TmpDigestForNewObjects().Digester()
 			counter := ioutils.NewWriteCounter(digester.Hash())
 			if _, err := io.Copy(counter, decoder); err != nil {
 				return "", fmt.Errorf("digesting inlined artifact config data: %w", err)
@@ -884,7 +885,7 @@ func (l *list) AddArtifact(ctx context.Context, sys *types.SystemContext, option
 		}
 	} else {
 		configDescriptor.Data = nil
-		configDescriptor.Digest = digest.Canonical.FromString("")
+		configDescriptor.Digest = supporteddigests.TmpDigestForNewObjects().FromString("")
 	}
 
 	// Construct the manifest.
